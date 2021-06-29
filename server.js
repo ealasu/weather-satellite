@@ -12,14 +12,15 @@ const pipeline = promisify(stream.pipeline)
 var host = process.env.HOST || '0.0.0.0'
 var port = process.env.PORT || '8082'
 
-const cachePeriodSeconds = 6 * 60 * 60
+const cacheDurationMillis = 8 * 60 * 60 * 1000 // 8 hours
 const cacheDir = path.join(__dirname, 'cache')
+mkdirp.sync(path.join(cacheDir, 'imagery'))
 const rambbUrl = 'https://rammb-slider.cira.colostate.edu/data'
 const area = [
-    [7,14],
-    [7,15],
-    [6,14],
-    [6,15],
+  [7,14],
+  [7,15],
+  [6,14],
+  [6,15],
 ]
 
 async function addToCache(filePath, alwaysUpdate) {
@@ -77,6 +78,34 @@ async function updateCache() {
 
 updateCache()
 setInterval(updateCache, 1000 * 60) // 1 minute
+
+function walk(directoryName, visit) {
+  let files = fs.readdirSync(directoryName)
+  for (let file of files) {
+    let fullPath = path.join(directoryName,file)
+    let stat = fs.statSync(fullPath)
+    if (stat.isDirectory()) {
+      walk(fullPath, visit)
+    }
+    visit(fullPath, stat)
+  }
+}
+
+function cleanCache() {
+  let now = +new Date()
+  walk(path.join(cacheDir, 'imagery'), (filePath, stat) => {
+    if (!stat.isDirectory() && stat.mtimeMs < (now - cacheDurationMillis)) {
+      console.log(`Deleting ${filePath}`)
+      fs.rmSync(filePath)
+    }
+    if (stat.isDirectory() && fs.readdirSync(filePath).length == 0) {
+      console.log(`Deleting ${filePath}`)
+      fs.rmdirSync(filePath)
+    }
+  })
+}
+cleanCache()
+
 
 
 const app = express()
