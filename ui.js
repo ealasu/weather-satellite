@@ -1,5 +1,5 @@
 import {select} from 'https://cdn.skypack.dev/d3@7'
-import {zoom, zoomIdentity} from "https://cdn.skypack.dev/d3-zoom@3"
+import {zoom, zoomIdentity} from 'https://cdn.skypack.dev/d3-zoom@3'
 import {Library} from 'https://cdn.skypack.dev/@observablehq/stdlib@3'
 
 
@@ -10,7 +10,7 @@ async function fetchJson(url) {
 }
 
 async function loadImage(url) {
-  const img = new Image();
+  const img = new Image()
   const promise = new Promise(resolve => {
       img.addEventListener('load', resolve, {once:true})
   })
@@ -46,7 +46,7 @@ async function load() {
     [6,15],
   ]
 
-  const map_time = (await fetchJson('/cache/json/goes-17/conus/lat/white/latest_times_all.json')).timestamps_int[0];
+  const map_time = (await fetchJson('/cache/json/goes-17/conus/lat/white/latest_times_all.json')).timestamps_int[0]
   const map_kinds = ['borders', 'cities', 'roads']
   let maps = []
   for (let name of map_kinds) {
@@ -88,7 +88,7 @@ async function load() {
 
   select(context.canvas).call(zoom()
       .scaleExtent([1, 8])
-      .on("zoom", ({transform}) => zoomed(transform)));
+      .on("zoom", ({transform}) => zoomed(transform)))
   let transform = zoomIdentity
   function zoomed(newTransform) {
     transform = newTransform
@@ -98,25 +98,20 @@ async function load() {
   let timeIndex = 0
 
   function render() {
-    context.save();
-    context.clearRect(0, 0, width, height);
-    context.translate(transform.x, transform.y);
-    context.scale(transform.k, transform.k);
+    context.save()
+    context.clearRect(0, 0, width, height)
+    context.translate(transform.x, transform.y)
+    context.scale(transform.k, transform.k)
 
     const image = productImages[timeIndex]
     if (image) {
-      //ctx.fillStyle = '#000'
-      //ctx.fillRect(i * progressHeight, 0, progressHeight, progressHeight)
       drawGrid(context, image)
       for (let map of maps) {
         drawGrid(context, map)
       }
-    } else {
-      //ctx.fillStyle = '#ccc'
-      //ctx.fillRect(i * progressHeight, 0, progressHeight, progressHeight)
     }
 
-    context.restore();
+    context.restore()
   }
 
 
