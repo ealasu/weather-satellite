@@ -15,23 +15,30 @@ html, body {
 }
 
 #progress {
-  height: 10px;
-  flex: 0 1 10px;
+  height: 4px;
+  flex: 0 1 4px;
+}
+
+#ticks {
+  width: 100%;
+  height: 100%;
   display:flex;
   flex-flow:row;
 }
 
-#progress > div {
+#ticks > div {
   width: 100%;
-  height: 10px;
+  height: 100%;
   background-color: #ddd;
+  transition: background-color 0.12s;
 }
 
-#progress > div.loaded {
+#ticks > div.loaded {
   background-color: #000;
 }
 
-#content {
+#ticks > div.active {
+  background-color: green;
 }
 
 #canvas {

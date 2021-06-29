@@ -55,11 +55,11 @@ async function load() {
     })
   }
 
-  const times = (await fetchJson('/cache/json/goes-17/conus/geocolor/latest_times.json')).timestamps_int
+  const times = Array.from((await fetchJson('/cache/json/goes-17/conus/geocolor/latest_times.json')).timestamps_int).reverse()
 
-  const progress = document.getElementById('progress')
+  const progress = document.getElementById('ticks')
   const progressTicks = {}
-  for (let time of Array.from(times).reverse()) {
+  for (let time of times) {
     let div = document.createElement('div')
     progress.appendChild(div)
     progressTicks[time] = div
@@ -67,7 +67,7 @@ async function load() {
 
   const productImages = {}
   let index = 0
-  for (let time of Array.from(times).reverse()) {
+  for (let time of times) {
     let i = index
     loadGrid(`/cache/imagery/${time.toString().substring(0, 8)}/goes-17---conus/geocolor/${time}/04`, areaGrid).then((grid) => {
       productImages[i] = grid
@@ -85,10 +85,6 @@ async function load() {
   canvas.width = width
   canvas.height = height
   const context = canvas.getContext('2d')
-
-  //const context = new Library().DOM.context2d(width * window.devicePixelRatio, height * window.devicePixelRatio)
-  //const context = new Library().DOM.context2d(width, height)
-  //document.body.appendChild(context.canvas)
 
   select(context.canvas).call(zoom()
       .scaleExtent([1, 8])
@@ -133,6 +129,14 @@ async function load() {
         timeIndex = 0
       }
       render()
+
+      for (const [time, element] of Object.entries(progressTicks)) {
+        if (time == times[timeIndex]) {
+          element.classList.add('active')
+        } else {
+          element.classList.remove('active')
+        }
+      }
     }, 1000/24)
   }
 
