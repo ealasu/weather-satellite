@@ -56,12 +56,22 @@ async function load() {
   }
 
   const times = (await fetchJson('/cache/json/goes-17/conus/geocolor/latest_times.json')).timestamps_int
+
+  const progress = document.getElementById('progress')
+  const progressTicks = {}
+  for (let time of Array.from(times).reverse()) {
+    let div = document.createElement('div')
+    progress.appendChild(div)
+    progressTicks[time] = div
+  }
+
   const productImages = {}
   let index = 0
   for (let time of Array.from(times).reverse()) {
     let i = index
     loadGrid(`/cache/imagery/${time.toString().substring(0, 8)}/goes-17---conus/geocolor/${time}/04`, areaGrid).then((grid) => {
       productImages[i] = grid
+      progressTicks[time].classList.add('loaded')
     })
     index += 1
   }
@@ -123,7 +133,7 @@ async function load() {
         timeIndex = 0
       }
       render()
-    }, 1000/10)
+    }, 1000/24)
   }
 
   function stop() {
