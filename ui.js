@@ -66,14 +66,16 @@ async function load() {
   }
 
   const productImages = {}
-  let index = 0
-  for (let time of times) {
-    let i = index
-    loadGrid(`/cache/imagery/${time.toString().substring(0, 8)}/goes-17---conus/geocolor/${time}/04`, areaGrid).then((grid) => {
-      productImages[i] = grid
+  let first = true
+  for (let time of Array.from(times).reverse()) {
+    let promise = loadGrid(`/cache/imagery/${time.toString().substring(0, 8)}/goes-17---conus/geocolor/${time}/04`, areaGrid).then((grid) => {
+      productImages[time] = grid
       progressTicks[time].classList.add('loaded')
     })
-    index += 1
+    if (first) { // Wait for the first one so it loads faster
+      await promise
+      first = false
+    }
   }
 
   const cell_size = 625
@@ -95,7 +97,7 @@ async function load() {
     render()
   }
 
-  let timeIndex = 0
+  let timeIndex = times.length - 1
 
   function render() {
     context.save()
@@ -103,7 +105,7 @@ async function load() {
     context.translate(transform.x, transform.y)
     context.scale(transform.k, transform.k)
 
-    const image = productImages[timeIndex]
+    const image = productImages[times[timeIndex]]
     if (image) {
       drawGrid(context, image)
       for (let map of maps) {
@@ -132,7 +134,7 @@ async function load() {
           element.classList.remove('active')
         }
       }
-    }, 1000/24)
+    }, 1000/15)
   }
 
   function stop() {
@@ -149,7 +151,6 @@ async function load() {
   })
 
   render()
-  start()
 }
 
 load()
