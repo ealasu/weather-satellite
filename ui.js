@@ -1,6 +1,7 @@
 import {select} from 'https://cdn.skypack.dev/d3@7'
 import {zoom, zoomIdentity} from 'https://cdn.skypack.dev/d3-zoom@3'
 import {Library} from 'https://cdn.skypack.dev/@observablehq/stdlib@3'
+import {DateTime} from 'https://cdn.skypack.dev/luxon@1'
 
 
 async function fetchJson(url) {
@@ -80,6 +81,7 @@ async function load() {
 
   const cell_size = 625
 
+  const timeText = document.getElementById('time')
   const canvas = document.getElementById('canvas')
   const width = canvas.offsetWidth
   const height = canvas.offsetHeight
@@ -105,12 +107,14 @@ async function load() {
     context.translate(transform.x, transform.y)
     context.scale(transform.k, transform.k)
 
-    const image = productImages[times[timeIndex]]
+    const time = times[timeIndex]
+    const image = productImages[time]
     if (image) {
       drawGrid(context, image)
       for (let map of maps) {
         drawGrid(context, map)
       }
+      timeText.innerText = DateTime.fromFormat(`${time}+0`, 'yyyyMMddHHmmssZ').toLocaleString(DateTime.DATETIME_FULL)
     }
 
     context.restore()
