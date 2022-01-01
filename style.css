@@ -1,5 +1,6 @@
 * {
-  font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, sans-serif;
+  /*font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, sans-serif;*/
+  font-family: "SF Mono", monospace;
 }
 
 html, body, canvas, div {
