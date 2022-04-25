@@ -110,6 +110,7 @@ cleanCache()
 
 
 const app = express()
+app.use(require('morgan')('combined'))
 app.use(express.static(__dirname))
 //app.use('/proxy/:path', (req, res) => {
     //const request_url = `${req.params.path}`
