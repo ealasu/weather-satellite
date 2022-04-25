@@ -69,7 +69,8 @@ async function load() {
   const productImages = {}
   let first = true
   for (let time of Array.from(times).reverse()) {
-    let promise = loadGrid(`/cache/imagery/${time.toString().substring(0, 8)}/goes-17---conus/geocolor/${time}/04`, areaGrid).then((grid) => {
+    let time = time.toString()
+    let promise = loadGrid(`/cache/imagery/${time.substring(0, 4)}/${time.substring(4, 6)}/${time.substring(6, 8)}/goes-17---conus/geocolor/${time}/04`, areaGrid).then((grid) => {
       productImages[time] = grid
       progressTicks[time].classList.add('loaded')
     })

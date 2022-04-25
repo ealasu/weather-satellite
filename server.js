@@ -47,7 +47,7 @@ async function addToCache(filePath, alwaysUpdate) {
 async function cacheGrid(timeUrl, imageUrl) {
     await addToCache(timeUrl, true)
     for (let time of JSON.parse(fs.readFileSync(`${cacheDir}/${timeUrl}`)).timestamps_int) {
-        await Promise.all(area.map(([y, x]) => addToCache(`${imageUrl(time)}/${String(y).padStart(3, '0')}_${String(x).padStart(3, '0')}.png`)))
+        await Promise.all(area.map(([y, x]) => addToCache(`${imageUrl(time.toString())}/${String(y).padStart(3, '0')}_${String(x).padStart(3, '0')}.png`)))
         //for (let [y, x] of area) {
             //await 
                 ////.catch((error) => console.error(`Failed to add file to cache: ${error}`))
@@ -71,10 +71,11 @@ async function updateCache() {
     )
     await cacheGrid(
         'json/goes-17/conus/geocolor/latest_times.json',
-        (time) => `imagery/${time.toString().substring(0, 8)}/goes-17---conus/geocolor/${time}/04`
+        (time) => `imagery/${time.substring(0, 4)}/${time.substring(4, 6)}/${time.substring(6, 8)}/goes-17---conus/geocolor/${time}/04`
     )
     console.log('Finished updating cache.')
 }
+//https://rammb-slider.cira.colostate.edu/data/imagery/2022/04/25/goes-17---conus/geocolor/20220425002617/03/004_007.png
 
 updateCache()
 setInterval(updateCache, 1000 * 60) // 1 minute
