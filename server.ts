@@ -88,7 +88,12 @@ updateCache()
 setInterval(updateCache, 1000 * 60) // 1 minute
 
 serve((req) => {
+  const path = new URL(req.url).pathname;
+  //if (path == '' || path == '/') {
+    //return new Response(streams.readableStreamFromReader(await Deno.open("static/index.html", { read: true })));
+  //}
   return serveDir(req, {
     fsRoot: "static",
+    showDirListing: true,
   });
 }, {port: 8080});
