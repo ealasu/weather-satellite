@@ -1,19 +1,23 @@
-FROM node:17-alpine
+FROM denoland/deno:1.21.0
 
-# Create app directory
-WORKDIR /usr/src/app
+# The port that your application listens to.
+EXPOSE 8080
 
-# Install app dependencies
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
-COPY package*.json ./
+WORKDIR /app
 
-RUN npm install
-# If you are building your code for production
-# RUN npm ci --only=production
+RUN mkdir -p /app/static/cache && chown deno /app/static/cache
 
-# Bundle app source
-COPY . .
+# Prefer not to run as root.
+USER deno
 
-EXPOSE 8082
-CMD [ "node", "server.js" ]
+# Cache the dependencies as a layer (the following two steps are re-run only when deps.ts is modified).
+# Ideally cache deps.ts will download and compile _all_ external files used in main.ts.
+COPY deps.ts .
+RUN deno cache deps.ts
+
+# These steps will be re-run upon each file change in your working directory:
+ADD . .
+# Compile the main app so that it doesn't need to be compiled each startup/entry.
+RUN deno cache server.ts
+
+CMD ["run", "--allow-net", "--allow-read", "--allow-write", "server.ts"]
