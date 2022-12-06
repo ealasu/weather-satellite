@@ -4,7 +4,15 @@
     <meta charset="utf-8">
     <title>weather satellite</title>
     <link rel="stylesheet" href="style.css">
-    <script type="module" src="ui.js"></script>
+    <script>
+      window.onerror = function(msg, url, lineNumber) {
+        fetch('/error', {
+          method: 'POST',
+          body: JSON.stringify({msg:msg, url:url, lineNumber:lineNumber})
+        });
+      };
+    </script>
+    <script src="ui.js"></script>
   </head>
   <body>
     <div id="box">

@@ -40,19 +40,19 @@ async function cacheGrid(timeUrl: string, imageUrl: (time: string) => string) {
 async function updateCache() {
     console.log('Updating cache...')
     await cacheGrid(
-        'json/goes-17/conus/lat/white/latest_times_all.json',
+        'json/goes-17/conus/maps/borders/white/latest_times_all.json',
         (time) => `maps/goes-17/conus/borders/white/${time}/04`
     )
     await cacheGrid(
-        'json/goes-17/conus/lat/white/latest_times_all.json',
+        'json/goes-17/conus/maps/cities/white/latest_times_all.json',
         (time) => `maps/goes-17/conus/cities/white/${time}/04`
     )
     await cacheGrid(
-        'json/goes-17/conus/lat/white/latest_times_all.json',
+        'json/goes-17/conus/maps/roads/white/latest_times_all.json',
         (time) => `maps/goes-17/conus/roads/white/${time}/04`
     )
     await cacheGrid(
-        'json/goes-17/conus/geocolor/latest_times.json',
+        'json/goes-17/conus/geocolor/latest_times_5760.json',
         (time) => `imagery/${time.substring(0, 4)}/${time.substring(4, 6)}/${time.substring(6, 8)}/goes-17---conus/geocolor/${time}/04`
     )
     await cleanCache();
@@ -67,6 +67,7 @@ function isEmptyIterable(iterable: Iterable<any>): boolean {
 }
 
 async function cleanCache() {
+  try{
   let now = new Date().getTime();
   const rootDir = path.join(cacheDir, 'imagery');
   for await (const entry of fs.walk(rootDir)) {
@@ -82,16 +83,23 @@ async function cleanCache() {
       await Deno.remove(entry.path);
     }
   }
+  } catch(e){
+    console.trace();
+  }
 }
 
 updateCache()
 setInterval(updateCache, 1000 * 60) // 1 minute
 
-serve((req) => {
+serve(async (req) => {
   const path = new URL(req.url).pathname;
   //if (path == '' || path == '/') {
     //return new Response(streams.readableStreamFromReader(await Deno.open("static/index.html", { read: true })));
   //}
+  if (path == '/error') {
+    let info = await req.json();
+    console.error('error: ', info);
+  }
   return serveDir(req, {
     fsRoot: "static",
     showDirListing: true,

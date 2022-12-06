@@ -1,7 +1,7 @@
-import {select} from 'https://cdn.skypack.dev/d3@7'
-import {zoom, zoomIdentity} from 'https://cdn.skypack.dev/d3-zoom@3'
-import {Library} from 'https://cdn.skypack.dev/@observablehq/stdlib@3'
-import {DateTime} from 'https://cdn.skypack.dev/luxon@1'
+import {select} from 'd3'
+import {zoom, zoomIdentity} from 'd3-zoom'
+import {Library} from '@observablehq/stdlib'
+import {DateTime} from 'luxon'
 
 
 async function fetchJson(url) {
@@ -47,16 +47,16 @@ async function load() {
     [6,15],
   ]
 
-  const map_time = (await fetchJson('/cache/json/goes-17/conus/lat/white/latest_times_all.json')).timestamps_int[0]
   const map_kinds = ['borders', 'cities', 'roads']
   let maps = []
   for (let name of map_kinds) {
+    const map_time = (await fetchJson(`/cache/json/goes-17/conus/maps/${name}/white/latest_times_all.json`)).timestamps_int[0]
     loadGrid(`/cache/maps/goes-17/conus/${name}/white/${map_time}/04`, areaGrid).then((grid) => {
       maps.push(grid)
     })
   }
 
-  const times = Array.from((await fetchJson('/cache/json/goes-17/conus/geocolor/latest_times.json')).timestamps_int).reverse()
+  const times = Array.from((await fetchJson('/cache/json/goes-17/conus/geocolor/latest_times_5760.json')).timestamps_int).reverse().slice(-200)
 
   const progress = document.getElementById('ticks')
   const progressTicks = {}
@@ -67,17 +67,22 @@ async function load() {
   }
 
   const productImages = {}
-  let first = true
+  //let first = true
+  let i = 0
   for (let time of Array.from(times).reverse()) {
     let timeStr = time.toString()
     let promise = loadGrid(`/cache/imagery/${timeStr.substring(0, 4)}/${timeStr.substring(4, 6)}/${timeStr.substring(6, 8)}/goes-17---conus/geocolor/${time}/04`, areaGrid).then((grid) => {
       productImages[time] = grid
       progressTicks[time].classList.add('loaded')
     })
-    if (first) { // Wait for the first one so it loads faster
+    //if (first) { // Wait for the first one so it loads faster
+      //await promise
+      //first = false
+    //}
+    if (i % 10 == 0) {
       await promise
-      first = false
     }
+    i += 1
   }
 
   const cell_size = 625

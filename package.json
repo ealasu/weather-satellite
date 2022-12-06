@@ -1,0 +1,13 @@
+{
+  "name": "ui2",
+  "version": "1.0.0",
+  "dependencies": {
+    "@observablehq/stdlib": "^5.1.1",
+    "d3": "^7.7.0",
+    "d3-zoom": "^3.0.0",
+    "luxon": "^3.1.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.15.18"
+  }
+}
