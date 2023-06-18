@@ -94,11 +94,13 @@ async function cleanCache() {
   }
 }
 
-updateCache()
-setInterval(updateCache, 1000 * 60) // 1 minute
+//updateCache()
+//setInterval(updateCache, 1000 * 60) // 1 minute
 
-serve(async (req) => {
+//async function serveRequest(conn: Deno.Conn) {
+async function serveRequest(req: Request): Promise<Response> {
   const path = new URL(req.url).pathname;
+  const route = '/api/';
   //if (path == '' || path == '/') {
     //return new Response(streams.readableStreamFromReader(await Deno.open("static/index.html", { read: true })));
   //}
@@ -106,8 +108,41 @@ serve(async (req) => {
     let info = await req.json();
     console.error('error: ', info);
   }
+  if (path.startsWith(route)) {
+    const suffix = path.slice(route.length);
+    const url = `https://rammb-slider.cira.colostate.edu/data/${suffix}`;
+    const response = await fetch(url);
+    return new Response(response.body, {status: response.status});
+  }
   return serveDir(req, {
     fsRoot: "static",
     showDirListing: true,
   });
-}, {port: 8080});
+    // The native HTTP server uses the web standard `Request` and `Response`
+    // objects.
+    //const body = `Your user-agent is:\n\n${
+      //requestEvent.request.headers.get("user-agent") ?? "Unknown"
+    //}`;
+    // The requestEvent's `.respondWith()` method is how we send the response
+    // back to the client.
+    //requestEvent.respondWith(
+      //new Response(body, {
+        //status: 200,
+      //}),
+    //);
+}
+
+await serve(serveRequest, {port: 8080});
+
+//async function serveHttp(conn: Deno.Conn) {
+  //const httpConn = Deno.serveHttp(conn);
+  //for await (const requestEvent of httpConn) {
+    //await serveRequest(requestEvent);
+  //}
+//}
+
+//const server = Deno.listen({ port: 8080 });
+//for await (const conn of server) {
+  //serveHttp(conn);
+//}
+

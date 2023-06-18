@@ -6,7 +6,8 @@ import {DateTime} from 'luxon'
 
 function makeUrl(suffix) {
   //let url = '/cache/'
-  let url = 'https://rammb-slider.cira.colostate.edu/data/'
+  //let url = 'https://rammb-slider.cira.colostate.edu/data/'
+  let url = '/api/'
   return url + suffix
 }
 
@@ -52,17 +53,18 @@ async function load() {
     [6,14],
     [6,15],
   ]
+  const satellite = 'goes-18'
 
   const map_kinds = ['borders', 'cities', 'roads']
   let maps = []
   for (let name of map_kinds) {
-    const map_time = (await fetchJson(`json/goes-17/conus/maps/${name}/white/latest_times_all.json`)).timestamps_int[0]
-    loadGrid(`maps/goes-17/conus/${name}/white/${map_time}/04`, areaGrid).then((grid) => {
+    const map_time = (await fetchJson(`json/${satellite}/conus/maps/${name}/white/latest_times_all.json`)).timestamps_int[0]
+    loadGrid(`maps/${satellite}/conus/${name}/white/${map_time}/04`, areaGrid).then((grid) => {
       maps.push(grid)
     })
   }
 
-  const times = Array.from((await fetchJson('json/goes-17/conus/geocolor/latest_times_5760.json')).timestamps_int).reverse().slice(-200)
+  const times = Array.from((await fetchJson(`json/${satellite}/conus/geocolor/latest_times_5760.json`)).timestamps_int).reverse().slice(-200)
 
   const progress = document.getElementById('ticks')
   const progressTicks = {}
@@ -77,7 +79,7 @@ async function load() {
   let i = 0
   for (let time of Array.from(times).reverse()) {
     let timeStr = time.toString()
-    let promise = loadGrid(`imagery/${timeStr.substring(0, 4)}/${timeStr.substring(4, 6)}/${timeStr.substring(6, 8)}/goes-17---conus/geocolor/${time}/04`, areaGrid).then((grid) => {
+    let promise = loadGrid(`imagery/${timeStr.substring(0, 4)}/${timeStr.substring(4, 6)}/${timeStr.substring(6, 8)}/${satellite}---conus/geocolor/${time}/04`, areaGrid).then((grid) => {
       productImages[time] = grid
       progressTicks[time].classList.add('loaded')
     })
