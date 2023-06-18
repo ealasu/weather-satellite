@@ -33,7 +33,13 @@ async function addToCache(filePath: string, alwaysUpdate: boolean) {
 async function cacheGrid(timeUrl: string, imageUrl: (time: string) => string) {
     await addToCache(timeUrl, true)
     for (let time of JSON.parse(await Deno.readTextFile(`${cacheDir}/${timeUrl}`)).timestamps_int) {
-        await Promise.all(area.map(([y, x]) => addToCache(`${imageUrl(time.toString())}/${String(y).padStart(3, '0')}_${String(x).padStart(3, '0')}.png`, false)))
+        let files = area.map(([y, x]) =>
+          `${imageUrl(time.toString())}/${String(y).padStart(3, '0')}_${String(x).padStart(3, '0')}.png`)
+        await Promise.all(files.map((file) => addToCache(file, false)))
+        let cwd = `/app/static/cache/${imageUrl(time.toString())}`;
+        console.log(cwd)
+        //let p = Deno.run({cwd, cmd: ['bash', '-c', 'montage * -tile 2x2 -geometry +0+0 all.png']})
+        //await p.status()
     }
 }
 

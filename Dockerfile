@@ -6,9 +6,12 @@ RUN npm install
 ADD ui.js /src/
 RUN ./node_modules/.bin/esbuild ui.js --bundle --outfile=ui-bundle.js
 
-FROM denoland/deno:1.21.0
+FROM denoland/deno:ubuntu-1.21.0
 EXPOSE 8080
 WORKDIR /app
+
+RUN apt-get update && apt-get install -y imagemagick ffmpeg
+
 RUN mkdir -p /app/static/cache && chown deno /app/static/cache
 USER deno
 
@@ -24,4 +27,4 @@ RUN deno cache server.ts
 
 COPY --from=builder /src/ui-bundle.js /app/static/ui.js
 
-CMD ["run", "--allow-net", "--allow-read", "--allow-write", "server.ts"]
+CMD ["run", "--allow-net", "--allow-read", "--allow-write", "--allow-run=bash", "server.ts"]

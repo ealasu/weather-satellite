@@ -4,8 +4,14 @@ import {Library} from '@observablehq/stdlib'
 import {DateTime} from 'luxon'
 
 
+function makeUrl(suffix) {
+  //let url = '/cache/'
+  let url = 'https://rammb-slider.cira.colostate.edu/data/'
+  return url + suffix
+}
+
 async function fetchJson(url) {
-  let res = await fetch(url)
+  let res = await fetch(makeUrl(url))
   let json = await res.json()
   return json
 }
@@ -15,7 +21,7 @@ async function loadImage(url) {
   const promise = new Promise(resolve => {
       img.addEventListener('load', resolve, {once:true})
   })
-  img.src = url
+  img.src = makeUrl(url)
   await promise
   return img
 }
@@ -50,13 +56,13 @@ async function load() {
   const map_kinds = ['borders', 'cities', 'roads']
   let maps = []
   for (let name of map_kinds) {
-    const map_time = (await fetchJson(`/cache/json/goes-17/conus/maps/${name}/white/latest_times_all.json`)).timestamps_int[0]
-    loadGrid(`/cache/maps/goes-17/conus/${name}/white/${map_time}/04`, areaGrid).then((grid) => {
+    const map_time = (await fetchJson(`json/goes-17/conus/maps/${name}/white/latest_times_all.json`)).timestamps_int[0]
+    loadGrid(`maps/goes-17/conus/${name}/white/${map_time}/04`, areaGrid).then((grid) => {
       maps.push(grid)
     })
   }
 
-  const times = Array.from((await fetchJson('/cache/json/goes-17/conus/geocolor/latest_times_5760.json')).timestamps_int).reverse().slice(-200)
+  const times = Array.from((await fetchJson('json/goes-17/conus/geocolor/latest_times_5760.json')).timestamps_int).reverse().slice(-200)
 
   const progress = document.getElementById('ticks')
   const progressTicks = {}
@@ -71,7 +77,7 @@ async function load() {
   let i = 0
   for (let time of Array.from(times).reverse()) {
     let timeStr = time.toString()
-    let promise = loadGrid(`/cache/imagery/${timeStr.substring(0, 4)}/${timeStr.substring(4, 6)}/${timeStr.substring(6, 8)}/goes-17---conus/geocolor/${time}/04`, areaGrid).then((grid) => {
+    let promise = loadGrid(`imagery/${timeStr.substring(0, 4)}/${timeStr.substring(4, 6)}/${timeStr.substring(6, 8)}/goes-17---conus/geocolor/${time}/04`, areaGrid).then((grid) => {
       productImages[time] = grid
       progressTicks[time].classList.add('loaded')
     })
