@@ -112,7 +112,10 @@ async function serveRequest(req: Request): Promise<Response> {
     const suffix = path.slice(route.length);
     const url = `https://rammb-slider.cira.colostate.edu/data/${suffix}`;
     const response = await fetch(url);
-    return new Response(response.body, {status: response.status});
+    const headers = {
+      'Cache-Control': path.endsWith('.png') ? 'public' : ''
+    }
+    return new Response(response.body, {status: response.status, headers});
   }
   return serveDir(req, {
     fsRoot: "static",
